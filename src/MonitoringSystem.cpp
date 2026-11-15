@@ -35,6 +35,36 @@ double MonitoringSystem::getAverageTemp() {
     return (tempCount == 0) ? 0 : (total / tempCount);
 }
 
+
+int MonitoringSystem::getSensorCount() {
+    return manager.getCount();
+}
+
+Sensor* MonitoringSystem::getSensor(int index) {
+    return manager.getSensor(index);
+}
+
+Sensor* MonitoringSystem::findSensor(int id) {
+    return manager.findSensor(id);
+}
+
+int MonitoringSystem::getActiveCount() {
+    return manager.getActiveCount();
+}
+
+int MonitoringSystem::getCriticalCount() {
+    return manager.getCriticalCount();
+}
+
+int MonitoringSystem::getInactiveCount() {
+    return manager.getInactiveCount();
+}
+
+std::array<int, 4> MonitoringSystem::getBreakdown() {
+    return manager.breakdown();
+}
+
+
 void MonitoringSystem::displayReport() {
     std::cout << "\n";
     std::cout << "========================================\n";

@@ -1,0 +1,81 @@
+import type { Sensor, SensorReading } from "../types/sensor";
+
+export const mockSensors: Sensor[] = [
+  {
+    id: 101,
+    name: "Boiler Temperature",
+    type: "Temperature",
+    value: 30,
+    unit: "°C",
+    minValue: 0,
+    maxValue: 50,
+    status: "Normal",
+    active: true,
+  },
+  {
+    id: 102,
+    name: "Main Pressure",
+    type: "Pressure",
+    value: 115,
+    unit: "bar",
+    minValue: 10,
+    maxValue: 100,
+    status: "Critical",
+    active: true,
+  },
+  {
+    id: 103,
+    name: "Room Humidity",
+    type: "Humidity",
+    value: 45,
+    unit: "%",
+    minValue: 0,
+    maxValue: 100,
+    status: "Normal",
+    active: true,
+  },
+  {
+    id: 104,
+    name: "Battery Voltage",
+    type: "Voltage",
+    value: 12.2,
+    unit: "V",
+    minValue: 10,
+    maxValue: 14,
+    status: "Normal",
+    active: true,
+  },
+  {
+    id: 105,
+    name: "Motor Temperature",
+    type: "Temperature",
+    value: 85,
+    unit: "°C",
+    minValue: 0,
+    maxValue: 80,
+    status: "Critical",
+    active: true,
+  },
+  {
+    id: 106,
+    name: "Pump Pressure",
+    type:"Pressure",
+    value: 75,
+    unit: "bar",
+    minValue: 10,
+    maxValue: 100,
+    status: "Normal",
+    active: true,
+  }
+
+];
+
+export const mockReadings: SensorReading[] = [
+  { time: "10:00", temperature: 21, pressure: 82 },
+  { time: "10:05", temperature: 22, pressure: 85 },
+  { time: "10:10", temperature: 23, pressure: 88 },
+  { time: "10:15", temperature: 22.5, pressure: 91 },
+  { time: "10:20", temperature: 24, pressure: 95 },
+  { time: "10:25", temperature: 24.5, pressure: 115 },
+  { time: "10:30", temperature: 25, pressure: 115 },
+];

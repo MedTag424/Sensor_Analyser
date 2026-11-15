@@ -103,3 +103,20 @@ target_link_libraries(monitoring_system_tests
 
 gtest_discover_tests(monitoring_system_tests)
 
+
+
+# ==============================
+# HTTP BACKEND
+# ==============================
+
+add_executable(sensor_server
+    src/server.cpp
+    src/Sensor.cpp
+    src/SensorManager.cpp
+    src/MonitoringSystem.cpp
+)
+find_package(Crow CONFIG REQUIRED)
+target_link_libraries(sensor_server
+    PRIVATE Crow::Crow
+)
+
