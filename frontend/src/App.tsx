@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
@@ -88,7 +88,7 @@ function App() {
     setForm((current) => ({ ...current, [field]: value }));
   }
 
-  async function handleCreateSensor(event: React.FormEvent<HTMLFormElement>) {
+  async function handleCreateSensor(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setNotice(null);
     setError(null);
