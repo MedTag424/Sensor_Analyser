@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
@@ -8,33 +8,50 @@ import SensorChart from "./components/SensorChart";
 import AlertsPanel from "./components/AlertsPanel";
 import SensorTable from "./components/SensorTable";
 
-import { mockSensors, mockReadings } from "./data/mockSensors";
+import { mockReadings } from "./data/mockSensors";
+import { getSensors } from "./services/sensorApi";
+
+import type { Sensor } from "./types/sensor";
 
 import "./App.css";
 
 function App() {
-  // Initialize React state with our mock sensor data
-  const [sensors, setSensors] = useState(mockSensors);
+  // Sensors received from the C++ backend
+  const [sensors, setSensors] = useState<Sensor[]>([]);
+
+  // API request states
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch sensors when the dashboard first loads
+  useEffect(() => {
+    async function loadSensors() {
+      try {
+        const data = await getSensors();
+        setSensors(data);
+        setError(null);
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Could not load sensors"
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadSensors();
+  }, []);
 
   // Calculate dashboard statistics
   const activeSensors = sensors.filter(
-    (sensor) => sensor.active,
+    (sensor) => sensor.active
   ).length;
 
   const criticalSensors = sensors.filter(
-    (sensor) => sensor.status === "Critical",
+    (sensor) => sensor.status === "Critical"
   ).length;
-
-  // Simulate receiving a new temperature reading
-  function updateTemperature() {
-    setSensors((currentSensors) =>
-      currentSensors.map((sensor) =>
-        sensor.id === 101
-          ? { ...sensor, value: 32.7 }
-          : sensor
-      )
-    );
-  }
 
   return (
     <div className="app-layout">
@@ -44,6 +61,18 @@ function App() {
         <Header />
 
         <div className="dashboard-content">
+
+          {/* API connection status */}
+          {loading && (
+            <p>Loading sensors from backend...</p>
+          )}
+
+          {error && (
+            <p role="alert">
+              Backend connection error: {error}
+            </p>
+          )}
+
           <section className="welcome-section">
             <div>
               <h2>System overview</h2>
@@ -96,15 +125,11 @@ function App() {
 
           <SensorTable sensors={sensors} />
 
-          {/* Temporary button to simulate a backend update */}
-          <button onClick={updateTemperature}>
-            Simulate temperature update
-          </button>
-
           <footer className="dashboard-footer">
             SensorFlow Industrial Monitoring
-            <span>Frontend demonstration · Mock data</span>
+            <span>Connected to C++ backend</span>
           </footer>
+
         </div>
       </main>
     </div>

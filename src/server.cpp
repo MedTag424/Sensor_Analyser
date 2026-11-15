@@ -8,12 +8,13 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 // --------------------------------------------------
 // GLOBAL APPLICATION DATA
 // --------------------------------------------------
 
-MonitoringSystem system(10);
+MonitoringSystem monitoringSystem(10);
 
 // Protect shared sensor data when multiple HTTP
 // requests arrive at approximately the same time.
@@ -23,7 +24,6 @@ std::mutex systemMutex;
 // --------------------------------------------------
 // HELPER FUNCTIONS
 // --------------------------------------------------
-
 // Convert SensorType into the corresponding enum value.
 SensorType parseSensorType(const std::string& type)
 {
@@ -96,27 +96,27 @@ crow::response errorResponse(int status, const std::string& message)
 int main()
 {
     // Initialize the existing sample sensors.
-    system.addSensor(
+    monitoringSystem.addSensor(
         new Sensor(101, SensorType::TEMPERATURE,
                    "Boiler Temp", 24.5, 0, 50, true)
     );
 
-    system.addSensor(
+    monitoringSystem.addSensor(
         new Sensor(102, SensorType::PRESSURE,
                    "Main Pressure", 115, 10, 100, true)
     );
 
-    system.addSensor(
+    monitoringSystem.addSensor(
         new Sensor(103, SensorType::HUMIDITY,
                    "Room Humidity", 45, 0, 100, true)
     );
 
-    system.addSensor(
+    monitoringSystem.addSensor(
         new Sensor(104, SensorType::VOLTAGE,
                    "Battery Voltage", 12.2, 10, 14, true)
     );
 
-    system.addSensor(
+    monitoringSystem.addSensor(
         new Sensor(105, SensorType::TEMPERATURE,
                    "Motor Temp", 85, 0, 80, true)
     );
@@ -150,9 +150,9 @@ int main()
 
         std::vector<crow::json::wvalue> sensors;
 
-        for (int i = 0; i < system.getSensorCount(); i++)
+        for (int i = 0; i < monitoringSystem.getSensorCount(); i++)
         {
-            const Sensor* sensor = system.getSensor(i);
+            const Sensor* sensor = monitoringSystem.getSensor(i);
 
             if (sensor != nullptr)
                 sensors.push_back(sensorToJson(*sensor));
@@ -175,7 +175,7 @@ int main()
     {
         std::lock_guard<std::mutex> lock(systemMutex);
 
-        const Sensor* sensor = system.findSensor(id);
+        const Sensor* sensor = monitoringSystem.findSensor(id);
 
         if (sensor == nullptr)
             return errorResponse(404, "Sensor not found");
@@ -216,7 +216,7 @@ int main()
             std::lock_guard<std::mutex> lock(systemMutex);
 
             // Prevent duplicate sensor IDs.
-            if (system.findSensor(id) != nullptr)
+            if (monitoringSystem.findSensor(id) != nullptr)
                 return errorResponse(409, "Sensor ID already exists");
 
             // Create the sensor and transfer ownership
@@ -225,7 +225,7 @@ int main()
                 id, type, name, value, minValue, maxValue, active
             );
 
-            system.addSensor(sensor.get());
+            monitoringSystem.addSensor(sensor.get());
             sensor.release();
 
             crow::json::wvalue response;
@@ -261,12 +261,12 @@ int main()
 
             std::lock_guard<std::mutex> lock(systemMutex);
 
-            if (system.findSensor(id) == nullptr)
+            if (monitoringSystem.findSensor(id) == nullptr)
                 return errorResponse(404, "Sensor not found");
 
             // Your existing changeValue() only accepts
             // values inside the sensor's configured range.
-            if (!system.updateSensor(id, newValue))
+            if (!monitoringSystem.updateSensor(id, newValue))
                 return errorResponse(422, "Value outside allowed range");
 
             crow::json::wvalue response;
@@ -294,7 +294,7 @@ int main()
     {
         std::lock_guard<std::mutex> lock(systemMutex);
 
-        if (!system.removeSensor(id))
+        if (!monitoringSystem.removeSensor(id))
             return errorResponse(404, "Sensor not found");
 
         crow::json::wvalue response;
@@ -317,13 +317,13 @@ int main()
 
         crow::json::wvalue response;
 
-        response["totalSensors"] = system.getSensorCount();
-        response["activeSensors"] = system.getActiveCount();
-        response["criticalSensors"] = system.getCriticalCount();
-        response["inactiveSensors"] = system.getInactiveCount();
-        response["averageTemperature"] = system.getAverageTemp();
+        response["totalSensors"] = monitoringSystem.getSensorCount();
+        response["activeSensors"] = monitoringSystem.getActiveCount();
+        response["criticalSensors"] = monitoringSystem.getCriticalCount();
+        response["inactiveSensors"] = monitoringSystem.getInactiveCount();
+        response["averageTemperature"] = monitoringSystem.getAverageTemp();
 
-        auto types = system.getBreakdown();
+        auto types = monitoringSystem.getBreakdown();
 
         crow::json::wvalue breakdown;
 
